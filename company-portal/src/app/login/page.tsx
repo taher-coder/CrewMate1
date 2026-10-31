@@ -8,10 +8,16 @@ import { createClient } from "@/lib/supabase/client";
 // or Google) — there is no "I am a company" checkbox at signup. Whether
 // someone lands on the application form or the dashboard is decided by
 // whether a company_members row exists for them, checked after login.
+//
+// Google is the primary path for now because phone OTP needs a Twilio
+// account wired into Supabase's Auth settings, which hasn't happened yet —
+// showing it as the default option would just produce a confusing dead
+// button. It's still here, collapsed, for whenever Twilio is configured.
 export default function LoginPage() {
   const router = useRouter();
   const supabase = createClient();
 
+  const [showPhone, setShowPhone] = useState(false);
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
   const [stage, setStage] = useState<"phone" | "otp">("phone");
@@ -46,6 +52,7 @@ export default function LoginPage() {
   }
 
   async function signInWithGoogle() {
+    setError(null);
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: { redirectTo: `${window.location.origin}/auth/callback` },
@@ -67,69 +74,75 @@ export default function LoginPage() {
           </div>
         )}
 
-        {stage === "phone" ? (
-          <form onSubmit={sendOtp} className="space-y-3">
-            <label className="block text-sm font-medium text-neutral-700">
-              Phone number
-              <input
-                type="tel"
-                required
-                placeholder="+91 98765 43210"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className="mt-1 w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-900 focus:outline-none"
-              />
-            </label>
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full rounded-md bg-neutral-900 px-3 py-2 text-sm font-medium text-white hover:bg-neutral-800 disabled:opacity-50"
-            >
-              {loading ? "Sending code…" : "Send code"}
-            </button>
-          </form>
-        ) : (
-          <form onSubmit={verifyOtp} className="space-y-3">
-            <label className="block text-sm font-medium text-neutral-700">
-              Enter the code sent to {phone}
-              <input
-                type="text"
-                required
-                inputMode="numeric"
-                placeholder="123456"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-                className="mt-1 w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-900 focus:outline-none"
-              />
-            </label>
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full rounded-md bg-neutral-900 px-3 py-2 text-sm font-medium text-white hover:bg-neutral-800 disabled:opacity-50"
-            >
-              {loading ? "Verifying…" : "Verify & sign in"}
-            </button>
-            <button
-              type="button"
-              onClick={() => setStage("phone")}
-              className="w-full text-xs text-neutral-500 hover:underline"
-            >
-              Use a different number
-            </button>
-          </form>
-        )}
-
-        <div className="relative py-2 text-center text-xs text-neutral-400">
-          <span className="bg-neutral-50 px-2">or</span>
-          <div className="absolute inset-x-0 top-1/2 -z-10 border-t border-neutral-200" />
-        </div>
-
         <button
           onClick={signInWithGoogle}
-          className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50"
+          className="flex w-full items-center justify-center gap-2 rounded-md bg-neutral-900 px-3 py-2.5 text-sm font-medium text-white hover:bg-neutral-800"
         >
           Continue with Google
         </button>
+
+        {!showPhone ? (
+          <button
+            onClick={() => setShowPhone(true)}
+            className="w-full text-center text-xs text-neutral-400 hover:underline"
+          >
+            Use phone number instead
+          </button>
+        ) : (
+          <div className="space-y-3 border-t border-neutral-200 pt-4">
+            {stage === "phone" ? (
+              <form onSubmit={sendOtp} className="space-y-3">
+                <label className="block text-sm font-medium text-neutral-700">
+                  Phone number
+                  <input
+                    type="tel"
+                    required
+                    placeholder="+91 98765 43210"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className="mt-1 w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-900 focus:outline-none"
+                  />
+                </label>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full rounded-md border border-neutral-300 px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50 disabled:opacity-50"
+                >
+                  {loading ? "Sending code…" : "Send code"}
+                </button>
+              </form>
+            ) : (
+              <form onSubmit={verifyOtp} className="space-y-3">
+                <label className="block text-sm font-medium text-neutral-700">
+                  Enter the code sent to {phone}
+                  <input
+                    type="text"
+                    required
+                    inputMode="numeric"
+                    placeholder="123456"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                    className="mt-1 w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-900 focus:outline-none"
+                  />
+                </label>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full rounded-md border border-neutral-300 px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50 disabled:opacity-50"
+                >
+                  {loading ? "Verifying…" : "Verify & sign in"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStage("phone")}
+                  className="w-full text-xs text-neutral-500 hover:underline"
+                >
+                  Use a different number
+                </button>
+              </form>
+            )}
+          </div>
+        )}
       </div>
     </main>
   );
