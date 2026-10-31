@@ -60,6 +60,28 @@ export default function LoginPage() {
     if (error) setError(error.message);
   }
 
+  // TEMPORARY: a real, pre-seeded account (email/password auth, which works
+  // out of the box with no external provider) so the app is clickable right
+  // now without Twilio or Google OAuth configured. This is a real signed-in
+  // session — RLS, the dashboard's live queries, and the apply flow all
+  // behave exactly as they would for any other user. Remove this button
+  // once Google/phone are actually configured and tested.
+  async function signInAsDemo() {
+    setLoading(true);
+    setError(null);
+    const { error } = await supabase.auth.signInWithPassword({
+      email: "demo@crewmate.app",
+      password: "CrewmateDemo2026!",
+    });
+    setLoading(false);
+    if (error) {
+      setError(error.message);
+      return;
+    }
+    router.replace("/");
+    router.refresh();
+  }
+
   return (
     <main className="flex min-h-screen items-center justify-center bg-neutral-50 px-4">
       <div className="w-full max-w-sm space-y-6">
@@ -73,6 +95,22 @@ export default function LoginPage() {
             {error}
           </div>
         )}
+
+        <button
+          onClick={signInAsDemo}
+          disabled={loading}
+          className="w-full rounded-md bg-amber-500 px-3 py-2.5 text-sm font-semibold text-white hover:bg-amber-600 disabled:opacity-50"
+        >
+          {loading ? "Signing in…" : "Continue with demo account"}
+        </button>
+        <p className="text-center text-[11px] text-neutral-400">
+          Temporary — skips Google/phone setup. Real session, real data.
+        </p>
+
+        <div className="relative py-1 text-center text-xs text-neutral-400">
+          <span className="bg-neutral-50 px-2">or</span>
+          <div className="absolute inset-x-0 top-1/2 -z-10 border-t border-neutral-200" />
+        </div>
 
         <button
           onClick={signInWithGoogle}
