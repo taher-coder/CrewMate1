@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CrewMate — Build Plan</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#161922; --panel2:#1c2029; --border:#272c38;
+    --text:#e8eaf0; --muted:#9099ad; --accent:#5b8def; --accent2:#4fd1a5;
+    --warn:#f0b254; --done:#4fd1a5; --radius:14px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif;
+    line-height:1.55;
+  }
+  .wrap{max-width:980px; margin:0 auto; padding:48px 24px 120px;}
+  header{margin-bottom:40px;}
+  .eyebrow{color:var(--accent); font-weight:600; font-size:13px; letter-spacing:.08em; text-transform:uppercase;}
+  h1{font-size:34px; margin:8px 0 10px; letter-spacing:-0.02em;}
+  .sub{color:var(--muted); font-size:16px; max-width:680px;}
+  .scope-bar{
+    display:flex; gap:10px; flex-wrap:wrap; margin-top:22px;
+  }
+  .chip{
+    background:var(--panel2); border:1px solid var(--border); border-radius:999px;
+    padding:6px 14px; font-size:13px; color:var(--muted);
+  }
+  .chip b{color:var(--text);}
+  nav.toc{
+    background:var(--panel); border:1px solid var(--border); border-radius:var(--radius);
+    padding:20px 24px; margin:32px 0 48px;
+  }
+  nav.toc div.title{font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; margin-bottom:10px;}
+  nav.toc ol{margin:0; padding-left:0; list-style:none; columns:2; gap:24px;}
+  nav.toc li{margin-bottom:6px; font-size:14px;}
+  nav.toc a{color:var(--text); text-decoration:none; border-bottom:1px solid transparent;}
+  nav.toc a:hover{border-bottom-color:var(--accent);}
+  .phase{
+    border:1px solid var(--border); border-radius:var(--radius); background:var(--panel);
+    margin-bottom:28px; overflow:hidden; scroll-margin-top:20px;
+  }
+  .phase-head{
+    display:flex; align-items:center; gap:14px; padding:20px 24px;
+    border-bottom:1px solid var(--border); background:var(--panel2);
+  }
+  .num{
+    width:34px; height:34px; border-radius:10px; background:var(--accent);
+    display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; flex-shrink:0;
+    color:#0f1115;
+  }
+  .num.done{background:var(--done);}
+  .phase-head h2{font-size:17px; margin:0; flex:1;}
+  .status{
+    font-size:11px; font-weight:700; letter-spacing:.05em; text-transform:uppercase;
+    padding:4px 10px; border-radius:6px; flex-shrink:0;
+  }
+  .status.done{background:rgba(79,209,165,.15); color:var(--done);}
+  .status.next{background:rgba(91,141,239,.15); color:var(--accent);}
+  .status.pending{background:rgba(144,153,173,.12); color:var(--muted);}
+  .phase-body{padding:22px 24px;}
+  .goal{color:var(--muted); margin:0 0 16px; font-size:14.5px;}
+  .cols{display:grid; grid-template-columns:1fr 1fr; gap:22px;}
+  @media (max-width:720px){.cols{grid-template-columns:1fr;} nav.toc ol{columns:1;}}
+  .block h4{
+    font-size:12px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted);
+    margin:0 0 10px;
+  }
+  .block ul{margin:0; padding-left:18px; font-size:14px;}
+  .block li{margin-bottom:6px;}
+  .exit{
+    margin-top:18px; padding:14px 16px; background:rgba(79,209,165,.06);
+    border:1px solid rgba(79,209,165,.25); border-radius:10px; font-size:13.5px;
+  }
+  .exit b{color:var(--done);}
+  .decision{
+    margin-top:18px; padding:14px 16px; background:rgba(240,178,84,.06);
+    border:1px solid rgba(240,178,84,.3); border-radius:10px; font-size:13.5px;
+  }
+  .decision b{color:var(--warn);}
+  .tag{
+    display:inline-block; font-size:11px; background:var(--panel2); color:var(--muted);
+    border:1px solid var(--border); border-radius:6px; padding:2px 8px; margin:2px 4px 2px 0;
+  }
+  footer{color:var(--muted); font-size:13px; margin-top:40px; border-top:1px solid var(--border); padding-top:20px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">Build Plan</div>
+    <h1>CrewMate — From schema to launch</h1>
+    <p class="sub">A phased implementation plan for the home-services marketplace: four connected apps (Customer, Company, Worker, Admin) on top of the Supabase backend already built and verified. Scoped to the stated launch target — Ahmedabad, Plumbing / Electrical / AC Repair.</p>
+    <div class="scope-bar">
+      <div class="chip">Stack: <b>Next.js · Supabase · Vercel</b></div>
+      <div class="chip">Launch city: <b>Ahmedabad</b></div>
+      <div class="chip">Launch categories: <b>3</b></div>
+      <div class="chip">Backend status: <b>Phase 0 complete &amp; verified</b></div>
+    </div>
+  </header>
+
+  <nav class="toc">
+    <div class="title">Phases</div>
+    <ol>
+      <li><a href="#p0">0 — Backend foundations <i>(done)</i></a></li>
+      <li><a href="#p1">1 — Auth &amp; app shell</a></li>
+      <li><a href="#p2">2 — Matching engine</a></li>
+      <li><a href="#p3">3 — Customer app MVP</a></li>
+      <li><a href="#p4">4 — Company portal MVP</a></li>
+      <li><a href="#p5">5 — Worker app MVP</a></li>
+      <li><a href="#p6">6 — Admin platform core</a></li>
+      <li><a href="#p7">7 — Messaging &amp; notifications</a></li>
+      <li><a href="#p8">8 — Payments &amp; commissions</a></li>
+      <li><a href="#p9">9 — Reviews, support, moderation</a></li>
+      <li><a href="#p10">10 — Pilot launch readiness</a></li>
+    </ol>
+  </nav>
+
+  <!-- PHASE 0 -->
+  <section class="phase" id="p0">
+    <div class="phase-head">
+      <div class="num done">✓</div>
+      <h2>Phase 0 — Backend foundations</h2>
+      <div class="status done">Done &amp; verified</div>
+    </div>
+    <div class="phase-body">
+      <p class="goal">The database layer that every other phase depends on. Already built, already run against a real Postgres+PostGIS instance, already proven with a scripted end-to-end test.</p>
+      <div class="cols">
+        <div class="block">
+          <h4>Delivered</h4>
+          <ul>
+            <li>Full schema — profiles/roles, companies &amp; verification, workers, service catalogue, geo coverage, requests/offers/jobs, quotes/payments/commissions, messaging, reviews, support, audit log</li>
+            <li>State-machine triggers — job lifecycle, request lifecycle, company application workflow, support workflow, review eligibility</li>
+            <li>Row-Level Security for every cross-tenant boundary in sec 13</li>
+            <li>Privileged RPCs for the writes RLS locks down (assign worker, advance job, cancel request, admin decisions)</li>
+          </ul>
+        </div>
+        <div class="block">
+          <h4>Proof</h4>
+          <ul>
+            <li>Migrations run clean on Postgres 16 + PostGIS 3.4</li>
+            <li>9/9 smoke-test assertions pass: full customer→company→worker→job flow, illegal transition rejected, cross-tenant RLS denial confirmed</li>
+            <li>One real bug found &amp; fixed mid-build (request status had no path through "companies notified")</li>
+          </ul>
+        </div>
+      </div>
+      <div class="exit"><b>Exit criteria met:</b> migrations apply to a fresh Supabase project with zero errors; smoke test passes.</div>
+    </div>
+  </section>
+
+  <!-- PHASE 1 -->
+  <section class="phase" id="p1">
+    <div class="phase-head">
+      <div class="num">1</div>
+      <h2>Phase 1 — Auth &amp; app shell</h2>
+      <div class="status next">Next</div>
+    </div>
+    <div class="phase-body">
+      <p class="goal">Nobody can use any app until signup/login produces a real <code>profiles</code> row with the right role. This phase is small but blocks everything after it.</p>
+      <div class="cols">
+        <div class="block">
+          <h4>Build</h4>
+          <ul>
+            <li>Next.js monorepo structure (customer / company / worker / admin as route groups or separate apps — decide in this phase)</li>
+            <li>Supabase Auth: phone+OTP and Google login (sec 5.1)</li>
+            <li><code>on_auth_user_created</code> trigger → auto-creates <code>profiles</code> row, defaults to <code>customer</code> role</li>
+            <li>Role-based routing guard (a customer login never reaches company/worker/admin UI)</li>
+            <li>Company-owner and worker accounts are role-upgraded by invite/approval flow, never self-selected at signup</li>
+          </ul>
+        </div>
+        <div class="block">
+          <h4>Connectors / infra needed</h4>
+          <span class="tag">Supabase</span><span class="tag">Twilio (OTP)</span><span class="tag">Vercel</span><span class="tag">GitHub</span>
+          <p style="margin-top:12px; color:var(--muted); font-size:13px;">None of these are connected yet — this is the first phase that actually needs them live, not just planned.</p>
+        </div>
+      </div>
+      <div class="decision"><b>Decision needed:</b> one Next.js app with role-based routing, or four separate deployables? Four is cleaner for independent release cadence (company portal ships faster than worker app); one is simpler to maintain early. Recommendation for MVP: <b>one app, role-gated routes</b> — split later if release cadence demands it.</div>
+      <div class="exit"><b>Exit criteria:</b> a new phone number can sign up via OTP and land in the customer app with a real DB-backed profile; an invited worker can activate their account and land in the worker app.</div>
+    </div>
+  </section>
+
+  <!-- PHASE 2 -->
+  <section class="phase" id="p2">
+    <div class="phase-head">
+      <div class="num">2</div>
+      <h2>Phase 2 — Matching engine</h2>
+      <div class="status pending">Pending</div>
+    </div>
+    <div class="phase-body">
+      <p class="goal">This is the one piece of real business logic the schema deliberately left outside the database (by design — see <code>docs/schema.md</code>). Build it before the customer app's booking flow, because booking has nothing to show without it.</p>
+      <div class="cols">
+        <div class="block">
+          <h4>Build</h4>
+          <ul>
+            <li>Server-side function: given a new <code>request</code>, find eligible companies — verified status, service category enabled, coverage area contains the request's location (PostGIS <code>ST_DWithin</code> query against <code>company_service_areas</code>)</li>
+            <li>Insert <code>request_offers</code> rows for each eligible company — this alone flips the request to <code>companies_notified</code> (trigger already handles this)</li>
+            <li>Expiry sweep: offers past <code>expires_at</code> auto-mark <code>expired</code>; if all offers on a request expire/reject, flip to <code>no_match</code></li>
+            <li>No-match handling: sec 10.4 — never leave a request spinning</li>
+          </ul>
+        </div>
+        <div class="block">
+          <h4>Where it runs</h4>
+          <ul>
+            <li>Supabase Edge Function (recommended) or a Next.js server action, triggered on request insert</li>
+            <li>Scheduled job (cron / Supabase pg_cron) for the expiry sweep</li>
+          </ul>
+        </div>
+      </div>
+      <div class="exit"><b>Exit criteria:</b> a seeded request in a covered area produces real <code>request_offers</code> rows for the right companies within seconds; an uncovered area correctly produces <code>no_match</code>.</div>
+    </div>
+  </section>
+
+  <!-- PHASE 3 -->
+  <section class="phase" id="p3">
+    <div class="phase-head">
+      <div class="num">3</div>
+      <h2>Phase 3 — Customer app MVP</h2>
+      <div class="status pending">Pending</div>
+    </div>
+    <div class="phase-body">
+      <p class="goal">The consumer-facing loop: discover a service, submit a request, watch it get matched, track the job, review it. Sections 5.2–5.9.</p>
+      <div class="cols">
+        <div class="block">
+          <h4>Screens</h4>
+          <ul>
+            <li>Home (categories, search, active/recent bookings)</li>
+            <li>8-stage booking flow (service → problem → description → media upload → address → time → review → confirm)</li>
+            <li>Matching-state screen, driven live off <code>requests.status</code> — never a fake "accepted"</li>
+            <li>Booking detail + status timeline + messaging</li>
+            <li>Bookings list (Upcoming / Active / Completed / Cancelled)</li>
+            <li>Review submission (gated server-side already — sec 5.10)</li>
+          </ul>
+        </div>
+        <div class="block">
+          <h4>Depends on</h4>
+          <ul>
+            <li>Phase 1 (auth) and Phase 2 (matching) — can't test this flow end-to-end without both</li>
+            <li>Supabase Storage for photo/video upload (<code>request_media</code>)</li>
+            <li>Realtime subscription on <code>requests</code>/<code>jobs</code> for live status updates</li>
+          </ul>
+        </div>
+      </div>
+      <div class="exit"><b>Exit criteria:</b> a real customer can submit a request, see it move through matching states truthfully, and — once a company/worker exist (Phase 4/5) — track a job to completion and leave a review.</div>
+    </div>
+  </section>
+
+  <!-- PHASE 4 -->
+  <section class="phase" id="p4">
+    <div class="phase-head">
+      <div class="num">4</div>
+      <h2>Phase 4 — Company portal MVP</h2>
+      <div class="status pending">Pending</div>
+    </div>
+    <div class="phase-body">
+      <p class="goal">Without this, there is no supply side to test Phase 3 against. Sections 6–7.</p>
+      <div class="cols">
+        <div class="block">
+          <h4>Build</h4>
+          <ul>
+            <li>Application form (sec 6.1) + document upload (private Storage bucket)</li>
+            <li>Dashboard — real metrics off live tables, not placeholders</li>
+            <li>Requests inbox → accept/reject (writes to <code>request_offers</code>)</li>
+            <li>Dispatch screen → <code>assign_worker</code> RPC</li>
+            <li>Worker management (invite, activate/deactivate, assign services)</li>
+            <li>Services &amp; service-area configuration</li>
+            <li>Jobs list + job detail workspace</li>
+          </ul>
+        </div>
+        <div class="block">
+          <h4>Note</h4>
+          <p style="color:var(--muted); font-size:13.5px;">Verification itself (admin approving the application) needs <i>some</i> admin surface — build the minimum needed here (a simple approve/reject screen or even a Supabase Studio-driven process) rather than waiting for the full Phase 6 admin platform.</p>
+        </div>
+      </div>
+      <div class="exit"><b>Exit criteria:</b> a company can apply, get manually verified, configure Plumbing/Ahmedabad coverage, receive a real offer from Phase 2's matching engine, accept it, and assign a worker.</div>
+    </div>
+  </section>
+
+  <!-- PHASE 5 -->
+  <section class="phase" id="p5">
+    <div class="phase-head">
+      <div class="num">5</div>
+      <h2>Phase 5 — Worker app MVP</h2>
+      <div class="status pending">Pending</div>
+    </div>
+    <div class="phase-body">
+      <p class="goal">Closes the loop: the worker is who actually makes <code>jobs.status</code> move. Sections 8.1–8.9. Mobile-first — this one gets used standing in someone's kitchen.</p>
+      <div class="cols">
+        <div class="block">
+          <h4>Build</h4>
+          <ul>
+            <li>Invite acceptance flow (links to Phase 1 auth)</li>
+            <li>Home (today's jobs, next job, availability toggle)</li>
+            <li>Job list + job detail (customer info, address/map, problem, media)</li>
+            <li>Lifecycle buttons wired to <code>advance_job_status</code> RPC — UI should only ever show the one legal next action</li>
+            <li>Completion flow (notes + photos → <code>job_completions</code>)</li>
+            <li>Messaging</li>
+          </ul>
+        </div>
+        <div class="block">
+          <h4>Depends on</h4>
+          <ul>
+            <li>Phase 4 (a company and worker must exist)</li>
+            <li>Maps provider for address display — <b>decision needed</b>, see below</li>
+          </ul>
+        </div>
+      </div>
+      <div class="decision"><b>Decision needed:</b> the blueprint names Google Maps, but there's no Google Maps MCP connector available — Mapbox or TomTom are connectable now, or Google Maps goes in via API key directly in code (no connector needed either way for a map embed). Recommend: decide this once, before Phase 3 and Phase 5 both need it.</div>
+      <div class="exit"><b>Exit criteria:</b> a worker receives a real assignment, cannot skip a lifecycle step (already DB-enforced, but the UI should make illegal states un-clickable), and completes a job end-to-end.</div>
+    </div>
+  </section>
+
+  <!-- PHASE 6 -->
+  <section class="phase" id="p6">
+    <div class="phase-head">
+      <div class="num">6</div>
+      <h2>Phase 6 — Admin platform core</h2>
+      <div class="status pending">Pending</div>
+    </div>
+    <div class="phase-body">
+      <p class="goal">Sections 9.1–9.8. Build the real version of what Phase 4 stubbed.</p>
+      <div class="cols">
+        <div class="block">
+          <h4>Build</h4>
+          <ul>
+            <li>Overview dashboard (GMV, active jobs, open requests, pending applications — real queries, sec 9.2)</li>
+            <li>Company verification workspace → <code>admin_decide_company_application</code> RPC</li>
+            <li>Request/job lifecycle viewer (full audit trail via <code>request_offers</code> + <code>job_status_history</code>)</li>
+            <li>Dispatch override tools → <code>assign_worker</code> RPC (admin bypasses company-membership check since <code>is_admin()</code> already covers it in RLS)</li>
+            <li>Worker/customer administration views</li>
+          </ul>
+        </div>
+        <div class="block">
+          <h4>Depends on</h4>
+          <ul><li>Phases 1–5 generating enough real rows to actually display</li></ul>
+        </div>
+      </div>
+      <div class="exit"><b>Exit criteria:</b> an admin can see every request/job's full history, approve a company end-to-end through the UI (not manually in Supabase Studio), and manually reassign a stuck job.</div>
+    </div>
+  </section>
+
+  <!-- PHASE 7 -->
+  <section class="phase" id="p7">
+    <div class="phase-head">
+      <div class="num">7</div>
+      <h2>Phase 7 — Messaging &amp; notifications</h2>
+      <div class="status pending">Pending</div>
+    </div>
+    <div class="phase-body">
+      <p class="goal">Section 11. The schema (<code>conversations</code>, <code>messages</code>, <code>notifications</code>) is done; this phase is wiring real-time delivery and the outbound channels.</p>
+      <div class="cols">
+        <div class="block">
+          <h4>Build</h4>
+          <ul>
+            <li>Supabase Realtime subscriptions for in-app chat + status updates</li>
+            <li>Notification-dispatch worker: reads new <code>notifications</code> rows, sends via the right channel</li>
+            <li>SMS via Twilio, email via Resend, push if/when a mobile shell exists</li>
+          </ul>
+        </div>
+        <div class="block">
+          <h4>Connectors needed</h4>
+          <span class="tag">Twilio</span><span class="tag">Resend</span>
+        </div>
+      </div>
+      <div class="exit"><b>Exit criteria:</b> a worker-assigned event reaches the customer as both an in-app update and an SMS within seconds.</div>
+    </div>
+  </section>
+
+  <!-- PHASE 8 -->
+  <section class="phase" id="p8">
+    <div class="phase-head">
+      <div class="num">8</div>
+      <h2>Phase 8 — Payments &amp; commissions</h2>
+      <div class="status pending">Pending</div>
+    </div>
+    <div class="phase-body">
+      <p class="goal">Section 12. Deliberately last among the core flows — the blueprint itself says the platform must not pretend to have collected money (sec 9.9), and the schema already refuses any client write to <code>payments</code>/<code>commissions</code>. This phase is building the one legitimate writer.</p>
+      <div class="cols">
+        <div class="block">
+          <h4>Build</h4>
+          <ul>
+            <li>Quote flow (company proposes, customer accepts — <code>quotes</code>/<code>quote_items</code>)</li>
+            <li>Razorpay checkout integration in the customer app</li>
+            <li>Razorpay webhook handler (Supabase Edge Function, <code>service_role</code>) — the only code allowed to write <code>payments</code></li>
+            <li>Commission calculation off <code>companies.commission_rate</code> at payment-capture time</li>
+            <li>Payout batching (company earnings view already has the read side built)</li>
+          </ul>
+        </div>
+        <div class="block">
+          <h4>Connectors needed</h4>
+          <span class="tag">Razorpay</span>
+        </div>
+      </div>
+      <div class="exit"><b>Exit criteria:</b> a test payment captures via webhook, a commission row is created automatically, and the company's earnings dashboard reflects it — with zero client-side code able to fake any of it.</div>
+    </div>
+  </section>
+
+  <!-- PHASE 9 -->
+  <section class="phase" id="p9">
+    <div class="phase-head">
+      <div class="num">9</div>
+      <h2>Phase 9 — Reviews, support, moderation</h2>
+      <div class="status pending">Pending</div>
+    </div>
+    <div class="phase-body">
+      <p class="goal">Sections 5.11, 7.10, 9.10, 9.11. The RPCs and RLS already exist; this is the UI layer.</p>
+      <div class="cols">
+        <div class="block">
+          <h4>Build</h4>
+          <ul>
+            <li>Support ticket creation (customer/company) + admin triage UI</li>
+            <li>Internal-note composer (admin-only, already invisible to others via RLS)</li>
+            <li>Review moderation queue → <code>admin_moderate_review</code> RPC</li>
+            <li>Company review-response UI → <code>company_respond_to_review</code> RPC</li>
+          </ul>
+        </div>
+      </div>
+      <div class="exit"><b>Exit criteria:</b> a support case opened by a customer is invisible to the company until an admin loops them in; a flagged review can be hidden and restored with a logged reason.</div>
+    </div>
+  </section>
+
+  <!-- PHASE 10 -->
+  <section class="phase" id="p10">
+    <div class="phase-head">
+      <div class="num">10</div>
+      <h2>Phase 10 — Pilot launch readiness</h2>
+      <div class="status pending">Pending</div>
+    </div>
+    <div class="phase-body">
+      <p class="goal">Section 17. Not new features — hardening and measurement for the actual Ahmedabad pilot.</p>
+      <div class="cols">
+        <div class="block">
+          <h4>Build</h4>
+          <ul>
+            <li>Analytics dashboard: request volume, acceptance rate, matching success, completion rate, cancellation rate, repeat bookings (sec 17 pilot measurements)</li>
+            <li>Seed real company/worker onboarding for the pilot partners</li>
+            <li>Load/edge-case pass on the matching engine with real Ahmedabad coverage data</li>
+            <li>Basic abuse/rate-limit protection on request submission and OTP</li>
+          </ul>
+        </div>
+        <div class="block">
+          <h4>Go/no-go</h4>
+          <ul><li>All prior exit criteria met</li><li>At least a handful of real verified companies onboarded in Ahmedabad before opening customer signups, so early requests don't hit <code>no_match</code></li></ul>
+        </div>
+      </div>
+      <div class="exit"><b>Exit criteria:</b> ready to let real Ahmedabad customers and the pilot companies use the platform and have the numbers to evaluate it.</div>
+    </div>
+  </section>
+
+  <footer>
+    CrewMate build plan · Phase 0 (backend) complete and verified · Phases 1–10 pending · Built against the stack: Next.js, Supabase (Postgres/Auth/Storage/Realtime), Vercel, Twilio, Resend, Razorpay.
+  </footer>
+
+</div>
+</body>
+</html>
