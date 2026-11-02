@@ -1,0 +1,124 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f5f8f6;
+  --foreground: #16211c;
+
+  /* CrewMate brand tokens */
+  --cm-forest: #0f3d28;
+  --cm-forest-dark: #0a2819;
+  --cm-emerald: #1f9d6b;
+  --cm-emerald-light: #2ebd82;
+  --cm-sage: #e9f2ec;
+  --cm-sage-deep: #dcebe1;
+  --cm-warm-white: #ffffff;
+  --cm-charcoal: #16211c;
+  --cm-muted: #5e6e64;
+  --cm-amber: #b8730f;
+  --cm-amber-bg: #fcf0dc;
+  --cm-red: #c5453d;
+  --cm-red-bg: #fbeae8;
+  --cm-green: #167a4c;
+  --cm-green-bg: #e3f4ea;
+  --cm-blue: #3463c9;
+  --cm-blue-bg: #e8eefb;
+
+  --shadow-card: 0 1px 2px rgba(16, 33, 28, 0.04), 0 8px 24px -8px rgba(16, 33, 28, 0.08);
+  --shadow-card-hover: 0 2px 4px rgba(16, 33, 28, 0.06), 0 16px 32px -12px rgba(16, 33, 28, 0.14);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-forest: var(--cm-forest);
+  --color-forest-dark: var(--cm-forest-dark);
+  --color-emerald: var(--cm-emerald);
+  --color-emerald-light: var(--cm-emerald-light);
+  --color-sage: var(--cm-sage);
+  --color-sage-deep: var(--cm-sage-deep);
+  --color-warm-white: var(--cm-warm-white);
+  --color-charcoal: var(--cm-charcoal);
+  --color-muted: var(--cm-muted);
+  --color-amber: var(--cm-amber);
+  --color-amber-bg: var(--cm-amber-bg);
+  --color-danger: var(--cm-red);
+  --color-danger-bg: var(--cm-red-bg);
+  --color-success: var(--cm-green);
+  --color-success-bg: var(--cm-green-bg);
+  --color-info: var(--cm-blue);
+  --color-info-bg: var(--cm-blue-bg);
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+* {
+  border-color: rgba(16, 33, 28, 0.08);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Smooth, consistent interaction defaults across the whole app */
+button,
+a {
+  transition: background-color 150ms ease, border-color 150ms ease,
+    color 150ms ease, box-shadow 150ms ease, opacity 150ms ease,
+    transform 150ms ease;
+}
+button:active {
+  transform: scale(0.98);
+}
+
+input,
+select,
+textarea {
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--cm-emerald) !important;
+  box-shadow: 0 0 0 3px rgba(31, 157, 107, 0.15);
+}
+
+.card {
+  box-shadow: var(--shadow-card);
+}
+.card-hover:hover {
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-1px);
+}
+
+/* Simple fade-in used when switching booking-form steps */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.fade-up {
+  animation: fade-up 220ms ease both;
+}
+
+/* Scrollbar: thin, unobtrusive, matches brand */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(16, 33, 28, 0.15);
+  border-radius: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
