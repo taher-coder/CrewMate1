@@ -27,12 +27,20 @@ export function BookingForm({
   const [addressLine1, setAddressLine1] = useState("");
   const [addressLabel, setAddressLabel] = useState("Home");
   const [timeType, setTimeType] = useState<"asap" | "scheduled">("asap");
+  const [scheduledAt, setScheduledAt] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const totalSteps = 4;
+  const minScheduleValue = new Date(Date.now() + 60 * 60 * 1000)
+    .toISOString()
+    .slice(0, 16);
 
   async function handleSubmit() {
+    if (timeType === "scheduled" && !scheduledAt) {
+      setError("Pick a date and time for the visit");
+      return;
+    }
     setSubmitting(true);
     setError(null);
     const result = await createRequest({
@@ -42,7 +50,7 @@ export function BookingForm({
       addressLine1,
       addressLabel,
       timeType,
-      scheduledAt: null,
+      scheduledAt: timeType === "scheduled" ? new Date(scheduledAt).toISOString() : null,
     });
     if (result?.error) {
       setError(result.error);
@@ -200,6 +208,21 @@ export function BookingForm({
             />
           </div>
 
+          {timeType === "scheduled" && (
+            <div className="mb-4">
+              <label className="mb-1.5 block text-xs font-semibold text-muted">
+                Pick a date & time
+              </label>
+              <input
+                type="datetime-local"
+                value={scheduledAt}
+                min={minScheduleValue}
+                onChange={(e) => setScheduledAt(e.target.value)}
+                className="w-full rounded-xl border border-black/10 bg-white px-4 py-3 text-sm"
+              />
+            </div>
+          )}
+
           <div className="card space-y-2.5 rounded-2xl bg-warm-white p-4 text-sm">
             <Row label="Service" value={category.name} />
             <Row
@@ -209,6 +232,19 @@ export function BookingForm({
               }
             />
             <Row label="Address" value={addressLine1 || "—"} />
+            <Row
+              label="When"
+              value={
+                timeType === "asap"
+                  ? "As soon as possible"
+                  : scheduledAt
+                    ? new Date(scheduledAt).toLocaleString("en-IN", {
+                        dateStyle: "medium",
+                        timeStyle: "short",
+                      })
+                    : "—"
+              }
+            />
             <Row
               label="Pricing"
               value="Quote from the company after review"
