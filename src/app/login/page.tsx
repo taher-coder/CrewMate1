@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Mail, MailCheck, Wrench, Zap, Snowflake } from "lucide-react";
 
@@ -14,6 +15,16 @@ import { Mail, MailCheck, Wrench, Zap, Snowflake } from "lucide-react";
  * fabricate" rule.
  */
 export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginPageInner />
+    </Suspense>
+  );
+}
+
+function LoginPageInner() {
+  const searchParams = useSearchParams();
+  const wrongPortal = searchParams.get("error") === "wrong_portal";
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">(
     "idle",
@@ -105,6 +116,13 @@ export default function LoginPage() {
                 Trusted plumbing, electrical and AC repair — booked in
                 minutes, in Ahmedabad.
               </p>
+
+              {wrongPortal && (
+                <p className="mb-5 rounded-xl bg-amber-bg px-4 py-3 text-sm text-amber">
+                  That account isn&apos;t set up for this app. You&apos;ve
+                  been signed out — use the link for your role instead.
+                </p>
+              )}
 
               <button
                 type="button"

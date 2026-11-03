@@ -18,6 +18,25 @@ const ROLE_HOME: Record<string, string> = {
   admin: "/internal-access",
 };
 
+/**
+ * Set APP_SCOPE on a deployment (plain env var — middleware runs
+ * server-side, so it doesn't need NEXT_PUBLIC_) to turn this same codebase
+ * into a single-purpose app for one role, e.g. a separate Vercel project
+ * at its own URL for companies only. Unset (the default/main deployment)
+ * serves all four roles as before. Admins can always sign in anywhere,
+ * since they may need to check any of the apps.
+ */
+const SCOPE_ROLES: Record<string, string[]> = {
+  customer: ["customer"],
+  company: ["company_owner", "company_staff"],
+  worker: ["worker"],
+};
+
+function currentScope(): string | null {
+  const scope = process.env.APP_SCOPE;
+  return scope && SCOPE_ROLES[scope] ? scope : null;
+}
+
 function roleAllowedForPath(role: string, pathname: string) {
   if (pathname.startsWith("/company")) {
     return role === "company_owner" || role === "company_staff";
@@ -89,6 +108,21 @@ export async function middleware(request: NextRequest) {
     // onboarding rather than letting them hit a role-gated page.
     const url = request.nextUrl.clone();
     url.pathname = "/onboarding";
+    return NextResponse.redirect(url);
+  }
+
+  const scope = currentScope();
+  if (scope && profile.role !== "admin" && !SCOPE_ROLES[scope].includes(profile.role)) {
+    // This deployment is scoped to one role (e.g. the company-only URL) —
+    // a customer or worker signing in here doesn't belong, regardless of
+    // which path they hit. Sign them out and send them back to /login with
+    // an explanation, rather than silently showing them their normal app
+    // on what's supposed to be a single-purpose URL.
+    await supabase.auth.signOut();
+    const url = request.nextUrl.clone();
+    url.pathname = "/login";
+    url.search = "";
+    url.searchParams.set("error", "wrong_portal");
     return NextResponse.redirect(url);
   }
 
